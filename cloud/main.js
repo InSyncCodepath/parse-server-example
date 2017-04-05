@@ -58,10 +58,10 @@ Parse.Cloud.define('pushChannelTestTwo', function(request, response) {
   var pushQuery = new Parse.Query(Parse.Installation);
   pushQuery.equalTo("deviceType", "android");
 
-  var payload = {
-      "alert": message,
-      "action": action,
-      "customdata": customData};
+  var payload = {};
+  payload.alert = message;
+  payload.action = action;
+  payload.customdata = customData;
 
   // Note that useMasterKey is necessary for Push notifications to succeed.
 
