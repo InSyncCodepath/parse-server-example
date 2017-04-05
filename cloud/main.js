@@ -40,7 +40,7 @@ Parse.Cloud.define('pushChannelTest', function(request, response) {
   // use to custom tweak whatever payload you wish to send
   var pushQuery = new Parse.Query(Parse.Installation);
   pushQuery.equalTo("deviceType", "android");
-  pushQuery.equalTo("installationId", "4cdce28b-3099-4476-9268-f60660d25c48");
+  //pushQuery.equalTo("installationId", "4cdce28b-3099-4476-9268-f60660d25c48");
 
   var payload = {};
 
