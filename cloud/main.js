@@ -170,7 +170,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
                var userIds = [];
                var userIndex = 0;
                for (var i = 0; i < eventsHosts.length; i++) {
-                 userIds[index] = eventsHosts[i].userId;
+                 userIds[userIndex] = eventsHosts[i].get("userId");
                  userIndex++;              
                }
                console.log("Got "+userIds.length+" hosts for the unprocessed past events.");
@@ -223,7 +223,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
                var userIds = [];
                var userIndex = 0;
                for (var i = 0; i < eventsHosts.length; i++) {
-                 userIds[index] = eventsHosts[i].get("userId");
+                 userIds[userIndex] = eventsHosts[i].get("userId");
                  userIndex++;              
                }
                console.log("Got "+eventsHosts.length+" guests of the upcoming events without RSVP.");
