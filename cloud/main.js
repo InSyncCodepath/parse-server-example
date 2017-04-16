@@ -137,7 +137,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
   var queryEnded = new Parse.Query("Event");
   queryEnded.equalTo("hasEnded", true);
 
-  var bufferDate = Date();
+  var bufferDate = new Date();
   var bufferHours = 3;
   bufferDate.setHours(bufferDate.getHours() - bufferHours);
   var queryTime = new Parse.Query(Parse.Event);
@@ -200,7 +200,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 
 // RSVP Status Check Job
 Parse.Cloud.define("RSVPStatusJob", function(request, response) {
-  var currentDate = Date();
+  var currentDate = new Date();
   var eventQuery = new Parse.Query("Event");
   eventQuery.equalTo("hasEnded", false);
   eventQuery.lessThan("startDate", currentDate);
