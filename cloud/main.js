@@ -230,7 +230,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 		   where: pushQuery, // Set our Installation query                                                                                                                                                              
 		   data: {
                      customdata: {
-                       title: eventData.get("name"),
+                       title: "Your RSVP is pending for "+eventData.get("name"),
                        eventId: eventData.id,
                        notificationType: 1
                      }
