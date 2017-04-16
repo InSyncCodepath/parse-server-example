@@ -134,7 +134,7 @@ Parse.Cloud.define("iosPushTest", function(request, response) {
 // Event expiration time job
 Parse.Cloud.define("EventEndJob", function(request, response) {
 
-  var queryEnded = new Parse.Query(Parse.Event);
+  var queryEnded = new Parse.Query("Event");
   queryEnded.equalTo("hasEnded", true);
 
   var bufferDate = Date();
@@ -158,25 +158,26 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 	  index++;
 	 }
 	 
-         var eventHostQuery = new Parse.Query(Parse.UserEventRelation);
+         console.log("Got "+eventsToCheck.length+" unprocessed past events.");
+         var eventHostQuery = new Parse.Query("UserEventRelation");
          eventHostQuery.containedIn("event", eventsToCheck); 
          eventHostQuery.equalTo("isHosting", true);
          eventHostQuery.find({
-             success: function(eventHosts) {
+             success: function(eventsHosts) {
                var userIds = [];
                var userIndex = 0;
                for (var i = 0; i < eventsHosts.length; i++) {
                  userIds[index] = eventsHosts[i].userId;
                  userIndex++;              
                }
+               console.log("Got "+userIds.length+" hosts for the unprocessed past events.");
 	       var pushQuery = new Parse.Query(Parse.Installation);
 	       pushQuery.equalTo("deviceType", "android");
 	       pushQuery.containedIn("userId", userIds);
-
 	       Parse.Push.send({
 		 where: pushQuery, // Set our Installation query                                                                                                                                                              
 		   data: {
-		     eventdata: eventHosts
+		     hostdata: eventsHosts
 		   }
 	       }, { success: function() {
 		      console.log("#### PUSH OK");
@@ -200,24 +201,26 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 // RSVP Status Check Job
 Parse.Cloud.define("RSVPStatusJob", function(request, response) {
   var currentDate = Date();
-  var eventQuery = new Parse.Query(Parse.Event);
+  var eventQuery = new Parse.Query("Event");
   eventQuery.equalTo("hasEnded", false);
   eventQuery.lessThan("startDate", currentDate);
 
   eventQuery.find({
     success: function(events) {	
-         var eventHostQuery = new Parse.Query(Parse.UserEventRelation);
+         console.log("Got "+events.length+" upcoming events.");
+         var eventHostQuery = new Parse.Query("UserEventRelation");
          eventHostQuery.containedIn("event", events); 
          eventHostQuery.equalTo("isHosting", false);
          eventHostQuery.lessThan("rsvpStatus", 2);
          eventHostQuery.find({
-             success: function(eventHosts) {
+             success: function(eventsHosts) {
                var userIds = [];
                var userIndex = 0;
                for (var i = 0; i < eventsHosts.length; i++) {
                  userIds[index] = eventsHosts[i].userId;
                  userIndex++;              
                }
+               console.log("Got "+eventsHosts.length+" guests of the upcoming events without RSVP.");
 	       var pushQuery = new Parse.Query(Parse.Installation);
 	       pushQuery.equalTo("deviceType", "android");
 	       pushQuery.containedIn("userId", userIds);
@@ -225,7 +228,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 	       Parse.Push.send({
 		 where: pushQuery, // Set our Installation query                                                                                                                                                              
 		   data: {
-		     guestdata: eventHosts
+		     guestdata: eventsHosts
 		   }
 	       }, { success: function() {
 		      console.log("#### PUSH OK");
