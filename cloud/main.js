@@ -140,7 +140,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
   var bufferDate = new Date();
   var bufferHours = 3;
   bufferDate.setHours(bufferDate.getHours() - bufferHours);
-  var queryTime = new Parse.Query(Parse.Event);
+  var queryTime = new Parse.Query("Event");
   queryTime.lessThan("endDate", bufferDate);
 
   var endEventQuery = Parse.Query.or(queryEnded, queryTime);                                                                                                                                            
