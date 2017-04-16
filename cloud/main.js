@@ -149,7 +149,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 	var eventsToCheck = [];
 	var index = 0;
 	for (var i = 0; i < events.length; i++) {
-          var highlightsVideo = events[i].highlightsVideo;
+          var highlightsVideo = events[i].get("highlightsVideo");
 	  if (highlightsVideo != null && highlightsVideo.trim().length > 0) {
             continue;
           } 
