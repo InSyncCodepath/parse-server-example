@@ -150,7 +150,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 	var index = 0;
 	for (var i = 0; i < events.length; i++) {
           var highlightsVideo = events[i].highlightsVideo;
-	  if (highlightsVideo != null && highlightsVideo.trim().length) {
+	  if (highlightsVideo != null && highlightsVideo.trim().length > 0) {
             continue;
           } 
 	  
@@ -206,7 +206,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
   var currentDate = new Date();
   var eventQuery = new Parse.Query("Event");
   eventQuery.notEqualTo("hasEnded", true);
-  eventQuery.lessThan("startDate", currentDate);
+  eventQuery.greaterThan("startDate", currentDate);
 
   eventQuery.find({
     success: function(events) {	
