@@ -203,16 +203,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 
 // RSVP Status Check Job
 Parse.Cloud.define("RSVPStatusJob", function(request, response) {
-  // request has 2 parameters: params passed by the client and the authorized user
-  var params = request.params;
-  var user = request.user;
-
-  // extract out the channel to send
-  var action = params.action;
-
   var payload = {};
-  payload.action = action;
-
   var currentDate = new Date();
   var eventQuery = new Parse.Query("Event");
   eventQuery.notEqualTo("hasEnded", true);
@@ -239,8 +230,8 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
                console.log("Got "+eventsHosts.length+" guests of the upcoming events without RSVP.");
 	       var pushQuery = new Parse.Query(Parse.Installation);
 	       pushQuery.equalTo("deviceType", "android");
-	       //pushQuery.containedIn("userId", userIds);
-               payload.customdata = "test";
+	       pushQuery.containedIn("userId", userIds);
+               payload.guestdata = "test";
 	       Parse.Push.send({
 		 where: pushQuery, // Set our Installation query                                                                                                                                                              
 		   data: payload,
