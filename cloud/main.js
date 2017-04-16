@@ -218,28 +218,31 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
          var eventHostQuery = new Parse.Query("UserEventRelation");
          eventHostQuery.containedIn("event", events); 
          eventHostQuery.equalTo("isHosting", false);
+         eventHostQuery.include("event");
          eventHostQuery.greaterThan("rsvpStatus", 1);
          eventHostQuery.find({
              success: function(eventsHosts) {
-               var userIds = [];
-               var userIndex = 0;
                for (var i = 0; i < eventsHosts.length; i++) {
-                 userIds[userIndex] = eventsHosts[i].get("userId");
+                 var eventData = eventsHosts[i].get("event");
+	         var pushQuery = new Parse.Query(Parse.Installation);
+	         pushQuery.equalTo("deviceType", "android");
+	         pushQuery.equalTo("userId", eventsHosts[i].get("userId"));
+                 var rsvpdata = {};
+                 rsvpdata.title =  "Your RSVP is pending for "+eventData.get("name"));
+                 rsvpdata.eventId = eventData.id;
+                 rsvpdata.notificationType = 1;
+                 payload.customdata = rsvpdata;
+	         Parse.Push.send({
+		   where: pushQuery, // Set our Installation query                                                                                                                                                              
+		   data: payload,
+	         }, { success: function() {
+		      console.log("#### PUSH OK");
+	         }, error: function(error) {
+		      console.log("#### PUSH ERROR" + error.message);
+	         }, useMasterKey: true});
                  userIndex++;              
                }
                console.log("Got "+eventsHosts.length+" guests of the upcoming events without RSVP.");
-	       var pushQuery = new Parse.Query(Parse.Installation);
-	       pushQuery.equalTo("deviceType", "android");
-	       pushQuery.containedIn("userId", userIds);
-               payload.guestdata = JSON.stringify(eventsHosts);
-	       Parse.Push.send({
-		 where: pushQuery, // Set our Installation query                                                                                                                                                              
-		   data: payload,
-	       }, { success: function() {
-		      console.log("#### PUSH OK");
-	       }, error: function(error) {
-		      console.log("#### PUSH ERROR" + error.message);
-	       }, useMasterKey: true});
 
 	       response.success('success');
              },
