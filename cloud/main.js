@@ -228,8 +228,8 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 	         pushQuery.equalTo("deviceType", "android");
 	         pushQuery.equalTo("userId", eventsHosts[i].get("userId"));
                  var rsvpdata = {};
-                 rsvpdata.title =  "Your RSVP is pending for "+eventData.get("name");
-                 rsvpdata.eventId = eventData.id;
+                 //rsvpdata.title =  "Your RSVP is pending for "+eventData.get("name");
+                 //rsvpdata.eventId = eventData.id;
                  rsvpdata.notificationType = 1;
                  payload.customdata = rsvpdata;
 	         Parse.Push.send({
@@ -240,7 +240,6 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 	         }, error: function(error) {
 		      console.log("#### PUSH ERROR" + error.message);
 	         }, useMasterKey: true});
-                 userIndex++;              
                }
                console.log("Got "+eventsHosts.length+" guests of the upcoming events without RSVP.");
 
