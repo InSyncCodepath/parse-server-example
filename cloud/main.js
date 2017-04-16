@@ -203,7 +203,6 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 
 // RSVP Status Check Job
 Parse.Cloud.define("RSVPStatusJob", function(request, response) {
-  var payload = {};
   var currentDate = new Date();
   var eventQuery = new Parse.Query("Event");
   eventQuery.notEqualTo("hasEnded", true);
@@ -227,14 +226,15 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 	         var pushQuery = new Parse.Query(Parse.Installation);
 	         pushQuery.equalTo("deviceType", "android");
 	         pushQuery.equalTo("userId", eventsHosts[i].get("userId"));
-                 var rsvpdata = {};
-                 rsvpdata.title =  eventData.get("name");
-                 rsvpdata.eventId = eventData.id;
-                 rsvpdata.notificationType = 1;
-                 payload.customdata = rsvpdata;
 	         Parse.Push.send({
 		   where: pushQuery, // Set our Installation query                                                                                                                                                              
-		   data: payload,
+		   data: {
+                     customdata: {
+                       title: eventData.get("name"),
+                       eventId: eventData.id,
+                       notificationType: 1
+                     }
+                   },
 	         }, { success: function() {
 		      console.log("#### PUSH OK");
 	         }, error: function(error) {
