@@ -229,7 +229,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
                console.log("Got "+eventsHosts.length+" guests of the upcoming events without RSVP.");
 	       var pushQuery = new Parse.Query(Parse.Installation);
 	       pushQuery.equalTo("deviceType", "android");
-	       pushQuery.containedIn("userId", userIds);
+	       //pushQuery.containedIn("userId", userIds);
 
 	       Parse.Push.send({
 		 where: pushQuery, // Set our Installation query                                                                                                                                                              
