@@ -240,7 +240,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 	       var pushQuery = new Parse.Query(Parse.Installation);
 	       pushQuery.equalTo("deviceType", "android");
 	       //pushQuery.containedIn("userId", userIds);
-               payload.guestdata = eventsHosts;
+               payload.customdata = "test";
 	       Parse.Push.send({
 		 where: pushQuery, // Set our Installation query                                                                                                                                                              
 		   data: payload,
