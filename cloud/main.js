@@ -228,7 +228,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 	         pushQuery.equalTo("deviceType", "android");
 	         pushQuery.equalTo("userId", eventsHosts[i].get("userId"));
                  var rsvpdata = {};
-                 rsvpdata.title =  "Your RSVP is pending for "+eventData.get("name"));
+                 rsvpdata.title =  "Your RSVP is pending for "+eventData.get("name");
                  rsvpdata.eventId = eventData.id;
                  rsvpdata.notificationType = 1;
                  payload.customdata = rsvpdata;
