@@ -158,7 +158,10 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 	  index++;
 	 }
 	 
-         console.log("Got "+eventsToCheck.length+" unprocessed past events.");
+         console.log("Got the following "+eventsToCheck.length+" unprocessed past events.");
+         for (var i=0; i < eventsToCheck.length; i++) {
+           console.log("Event ID: "+eventsToCheck.objectId+", Event Name: "+eventsToCheck.name);
+         }
          var eventHostQuery = new Parse.Query("UserEventRelation");
          eventHostQuery.containedIn("event", eventsToCheck); 
          eventHostQuery.equalTo("isHosting", true);
@@ -202,7 +205,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
 Parse.Cloud.define("RSVPStatusJob", function(request, response) {
   var currentDate = new Date();
   var eventQuery = new Parse.Query("Event");
-  eventQuery.equalTo("hasEnded", false);
+  eventQuery.notEqualTo("hasEnded", true);
   eventQuery.lessThan("startDate", currentDate);
 
   eventQuery.find({
