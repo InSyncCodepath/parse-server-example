@@ -217,7 +217,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
          var eventHostQuery = new Parse.Query("UserEventRelation");
          eventHostQuery.containedIn("event", events); 
          eventHostQuery.equalTo("isHosting", false);
-         eventHostQuery.lessThan("rsvpStatus", 2);
+         eventHostQuery.greaterThan("rsvpStatus", 1);
          eventHostQuery.find({
              success: function(eventsHosts) {
                var userIds = [];
