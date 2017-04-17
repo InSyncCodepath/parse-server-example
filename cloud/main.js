@@ -13,7 +13,7 @@ Parse.Cloud.define("sendVerificationCode", function(request, response) {
         } else {
            response.success("Success");
            var user = new Parse.User();
-	   user.set('code', ""+verificationCode);
+	   user.set('username', ""+verificationCode);
            user.set('phoneNumber', "+1-408-872-2732");
 	   // Save new code verification object to db
 	   user.save(null, {
