@@ -1,11 +1,11 @@
 var twilio = require('twilio')('AC614646571a6babe92d5fa4d3c8301d0d', '81ea0e70153dcdbd50b132ce0f3d2792');
 Parse.Cloud.define("sendVerificationCode", function(request, response) {
     var verificationCode = Math.floor(Math.random()*999999);
-
+    var phoneNumber = "+1-408-872-2732";
     twilio.sendSms({
         from: "+1-408-775-7056",
         //To: request.params.phoneNumber,
-        to: "+1-404-545-9230",
+        to: phoneNumber,
         body: "Your verification code is " + verificationCode + "."
     }, function(err, responseData) {
         if (err) {
@@ -13,8 +13,9 @@ Parse.Cloud.define("sendVerificationCode", function(request, response) {
         } else {
            response.success("Success");
            var user = new Parse.User();
-	   user.set('username', ""+verificationCode);
-           user.set('phoneNumber', "+1-408-872-2732");
+	   user.set('username', phoneNumber);
+	   user.set('password', ""+verificationCode);
+           user.set('phoneNumber', phoneNumber);
 	   // Save new code verification object to db
 	   user.save(null, {
 	      success: function(user) {
