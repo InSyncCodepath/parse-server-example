@@ -5,7 +5,7 @@ Parse.Cloud.define("sendVerificationCode", function(request, response) {
     twilio.sendSms({
         from: "+1-408-775-7056",
         //To: request.params.phoneNumber,
-        to: "+1-408-872-2732",
+        to: "+1-404-545-9230",
         body: "Your verification code is " + verificationCode + "."
     }, function(err, responseData) {
         if (err) {
