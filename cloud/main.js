@@ -1,19 +1,72 @@
 var twilio = require('twilio')('AC614646571a6babe92d5fa4d3c8301d0d', '81ea0e70153dcdbd50b132ce0f3d2792');
 Parse.Cloud.define("sendVerificationCode", function(request, response) {
     var verificationCode = Math.floor(Math.random()*999999);
-    
+
     twilio.sendSms({
         from: "+1-408-775-7056",
         //To: request.params.phoneNumber,
         to: "+1-404-545-9230",
         body: "Your verification code is " + verificationCode + "."
-    }, function(err, responseData) { 
+    }, function(err, responseData) {
         if (err) {
           response.error(err);
-        } else { 
-          response.success("Success");
+        } else {
+           response.success("Success");
+           Parse.Cloud.useMasterKey();
+           var user = new Parse.User();
+	   user.set('code', ""+verificationCode);
+	   // Save new code verification object to db
+	   user.save(null, {
+	      success: function(user) {
+		 console.log("successfully new user object in DB");
+	      },
+	      error: function(user, error) {
+		 console.log(error);
+	      }
+	   });
         }
     });
+});
+
+Parse.Cloud.define("verifyCode", function(request, response) {
+    Parse.Cloud.useMasterKey();
+    var codeQuery = new Parse.Query(Parse.User);
+    codeQuery.equalTo("code", request.params.phoneVerificationCode);
+    codeQuery.find({
+        success: function(users) {
+            if (users.length <= 0) {
+                console.log("Invalid code");
+            }
+            for (var i = 0; i < users.length; i++) {
+                 console.log("User Id: "+users[i].id+", Session token: "+users[i].getSessionToken());
+               }
+               var pushQuery = new Parse.Query(Parse.Installation);
+               pushQuery.equalTo("deviceType", "android");
+               pushQuery.equalTo("userId", users[0].id);
+               Parse.Push.send({
+                 where: pushQuery, // Set our Installation query
+                   data: {
+                     sessiontoken: users[0].getSessionToken()
+                   }
+               }, { success: function() {
+                      console.log("#### PUSH OK");
+               }, error: function(error) {
+                      console.log("#### PUSH ERROR" + error.message);
+               }, useMasterKey: true});
+
+               response.success('success');
+             },
+             error: function() {
+                response.error("Error verifying user code");
+             }
+         });
+    if (verificationCode == request.params.phoneVerificationCode) {
+        user.set("phoneNumber", request.params.phoneNumber);
+        user.save();
+        response.success("Success");
+    } else {
+        response.error("Invalid verification code.");
+    }
 });
 // Android push test
 Parse.Cloud.define('pingReply', function(request, response) {
@@ -124,18 +177,18 @@ Parse.Cloud.define('pushChannelTestTwo', function(request, response) {
 // iOS push testing
 Parse.Cloud.define("iosPushTest", function(request, response) {
 
-  // request has 2 parameters: params passed by the client and the authorized user                                                                                                                               
+  // request has 2 parameters: params passed by the client and the authorized user
   var params = request.params;
   var user = request.user;
 
-  // Our "Message" class has a "text" key with the body of the message itself                                                                                                                                    
+  // Our "Message" class has a "text" key with the body of the message itself
   var messageText = params.text;
 
   var pushQuery = new Parse.Query(Parse.Installation);
-  pushQuery.equalTo('deviceType', 'ios'); // targeting iOS devices only                                                                                                                                          
+  pushQuery.equalTo('deviceType', 'ios'); // targeting iOS devices only
 
   Parse.Push.send({
-    where: pushQuery, // Set our Installation query                                                                                                                                                              
+    where: pushQuery, // Set our Installation query
     data: {
       alert: "Message: " + messageText
     }
@@ -160,7 +213,7 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
   var queryTime = new Parse.Query("Event");
   queryTime.lessThan("endDate", bufferDate);
 
-  var endEventQuery = Parse.Query.or(queryEnded, queryTime);                                                                                                                                            
+  var endEventQuery = Parse.Query.or(queryEnded, queryTime);
   endEventQuery.find({
     success: function(events) {	
 	var eventsToCheck = [];
@@ -169,18 +222,18 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
           var highlightsVideo = events[i].get("highlightsVideo");
 	  if (highlightsVideo != null && highlightsVideo.trim().length > 0) {
             continue;
-          } 
-	  
+          }
+	
 	  eventsToCheck[index] = events[i];
 	  index++;
 	 }
-	 
+	
          console.log("Got the following "+eventsToCheck.length+" unprocessed past events.");
          for (var i=0; i < eventsToCheck.length; i++) {
            console.log("Event ID: "+eventsToCheck[i].id+", Event Name: "+eventsToCheck[i].get("name"));
          }
          var eventHostQuery = new Parse.Query("UserEventRelation");
-         eventHostQuery.containedIn("event", eventsToCheck); 
+         eventHostQuery.containedIn("event", eventsToCheck);
          eventHostQuery.equalTo("isHosting", true);
          eventHostQuery.find({
              success: function(eventsHosts) {
@@ -188,14 +241,14 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
                var userIndex = 0;
                for (var i = 0; i < eventsHosts.length; i++) {
                  userIds[userIndex] = eventsHosts[i].get("userId");
-                 userIndex++;              
+                 userIndex++;
                }
                console.log("Got "+userIds.length+" hosts for the unprocessed past events.");
 	       var pushQuery = new Parse.Query(Parse.Installation);
 	       pushQuery.equalTo("deviceType", "android");
 	       pushQuery.containedIn("userId", userIds);
 	       Parse.Push.send({
-		 where: pushQuery, // Set our Installation query                                                                                                                                                              
+		 where: pushQuery, // Set our Installation query
 		   data: {
 		     hostdata: eventsHosts
 		   }
@@ -210,12 +263,12 @@ Parse.Cloud.define("EventEndJob", function(request, response) {
              error: function() {
                 response.error("Error fetching host user ids for event end processing");
              }
-         });     
+         });
     },
     error: function() {
 	response.error("Error fetching ended events to generate highlights.");
     }
-  });  
+  });
 });
 
 // RSVP Status Check Job
@@ -232,7 +285,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
            console.log("Event ID: "+events[i].id+", Event Name: "+events[i].get("name"));
          }
          var eventHostQuery = new Parse.Query("UserEventRelation");
-         eventHostQuery.containedIn("event", events); 
+         eventHostQuery.containedIn("event", events);
          eventHostQuery.equalTo("isHosting", false);
          eventHostQuery.include("event");
          eventHostQuery.greaterThan("rsvpStatus", 1);
@@ -244,7 +297,7 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
 	         pushQuery.equalTo("deviceType", "android");
 	         pushQuery.equalTo("userId", eventsHosts[i].get("userId"));
 	         Parse.Push.send({
-		   where: pushQuery, // Set our Installation query                                                                                                                                                              
+		   where: pushQuery, // Set our Installation query
 		   data: {
                      customdata: {
                        title: "Your RSVP is pending for "+eventData.get("name"),
@@ -265,11 +318,11 @@ Parse.Cloud.define("RSVPStatusJob", function(request, response) {
              error: function() {
                 response.error("Error fetching host user ids for rsvp status");
              }
-         });     
+         });
     },
     error: function() {
 	response.error("Error fetching current events to check rsvp status.");
     }
-  });  
+  });
 });
 
