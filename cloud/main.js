@@ -31,23 +31,20 @@ Parse.Cloud.define("sendVerificationCode", function(request, response) {
 });
 
 Parse.Cloud.define("verifyCode", function(request, response) {
-    var codeQuery = new Parse.Query(Parse.User);
-    codeQuery.equalTo("code", request.params.phoneVerificationCode);
-    codeQuery.find({
-        success: function(users) {
-            if (users.length <= 0) {
-                console.log("Invalid code");
-            }
-            for (var i = 0; i < users.length; i++) {
-                 console.log("User Id: "+users[i].id+", Session token: "+users[i].getSessionToken());
-               }
+    //var code = request.params.phoneVerificationCode;
+    //var phoneNumber = request.params.phoneNumber;
+    var username = "+1-408-872-2732";
+    var password = "3997";
+    
+    Parse.User.logIn(username, password, {
+        success: function(user) {
                var pushQuery = new Parse.Query(Parse.Installation);
                pushQuery.equalTo("deviceType", "android");
-               pushQuery.equalTo("userId", users[0].id);
+               pushQuery.equalTo("userId", user.id);
                Parse.Push.send({
                  where: pushQuery, // Set our Installation query
                    data: {
-                     sessiontoken: users[0].getSessionToken()
+                     sessiontoken: user.getSessionToken()
                    }
                }, { success: function() {
                       console.log("#### PUSH OK");
@@ -57,18 +54,12 @@ Parse.Cloud.define("verifyCode", function(request, response) {
 
                response.success('success');
              },
-             error: function() {
+             error: function(user, error) {
                 response.error("Error verifying user code");
              }
          });
-    if (verificationCode == request.params.phoneVerificationCode) {
-        user.set("phoneNumber", request.params.phoneNumber);
-        user.save();
-        response.success("Success");
-    } else {
-        response.error("Invalid verification code.");
-    }
 });
+
 // Android push test
 Parse.Cloud.define('pingReply', function(request, response) {
   var params = request.params;
