@@ -1,13 +1,12 @@
 var twilio = require('twilio')('AC614646571a6babe92d5fa4d3c8301d0d', '81ea0e70153dcdbd50b132ce0f3d2792');
-Parse.Cloud.define("sendUserMessage", function(request, response) {
+Parse.Cloud.define("sendVerificationCode", function(request, response) {
     var verificationCode = Math.floor(Math.random()*999999);
     var phoneNumber = request.params.phoneNumber;
-   
     twilio.sendSms({
         from: "+1-408-775-7056",
         //To: request.params.phoneNumber,
         to: phoneNumber,
-        body: request.params.message
+        body: verificationCode+" is your InSync verification code."
     }, function(err, responseData) {
         if (err) {
           response.error(err);
