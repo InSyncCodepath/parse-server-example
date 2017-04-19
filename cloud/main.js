@@ -43,6 +43,22 @@ Parse.Cloud.define("sendVerificationCode", function(request, response) {
     });
 });
 
+Parse.Cloud.define("sendUserMessage", function(request, response) {
+    var phoneNumber = request.params.phoneNumber;
+    twilio.sendSms({
+        from: "+1-408-775-7056",
+        //To: request.params.phoneNumber,
+        to: phoneNumber,
+        body: request.params.message
+    }, function(err, responseData) {
+        if (err) {
+          response.error(err);
+        } else {
+           response.success("Success");
+        }
+    });
+});
+
 Parse.Cloud.define("verifyCode", function(request, response) {
     //var code = request.params.phoneVerificationCode;
     //var phoneNumber = request.params.phoneNumber;
