@@ -20,10 +20,22 @@ Parse.Cloud.define("sendVerificationCode", function(request, response) {
 	   // Save new code verification object to db
 	   user.save(null, {
 	      success: function(user) {
-		 console.log("successfully new user object in DB");
+		 console.log("successfully created new user object in DB");
 	      },
 	      error: function(user, error) {
 		 console.log(error);
+                 user.set('password', ""+verificationCode);
+                 user.save(null, {
+                    success: function(user) {
+                    console.log("successfully updated user object in DB");
+                 },
+                 error: function(user, error) {
+                     console.log(error);
+                 
+                 },
+                 useMasterKey: true
+                 });
+
 	      }, 
               useMasterKey: true
 	   });
